@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Stream Text Overlay</title>
+        <script src="https://github.com/tmijs/tmi.js/releases/download/v1.8.5/tmi.min.js"></script>
+        <style>
+            body { width: 100%; height: 100%; margin: 0; padding: 0; }
+            .text-container { position: absolute; width: 100%; height: 100%; overflow: hidden; }
+            .text {
+                position: absolute;
+                font-size: 2em;
+                font-weight: bold;
+                font-family: Arial;
+                color: white;
+                margin: 0;
+                white-space: nowrap;
+                animation: rtl 10s linear, wiggle 2s ease-in-out infinite;
+                text-shadow:
+                    -2px -2px 0 black,
+                    -2px 2px 0 black,
+                    2px -2px 0 black,
+                    2px 2px 0 black;
+            }
+            @keyframes rtl {
+                from { transform: translateX(0%); left: 100%; }
+                to { transform: translateX(-100%); left: 0%; }
+            }
+            @keyframes wiggle {
+                from { padding-top: 0; }
+                50% { padding-top: 0.5em; }
+                to { padding-top: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="text-container">
+        </div>
+        <script>
+
+            const client = new tmi.Client({
+                channels: [ 'willowesque' ]
+            });
+
+            const container = document.querySelector(".text-container");
+            client.connect();
+            client.on('message', (channel, tags, message, self) => {
+                color = tags.color;
+                const p = document.createElement("p");
+                p.classList.add("text");
+                p.addEventListener("animationend", (evt) => { if (evt.animationName == "rtl") p.remove() });
+                p.textContent = message;
+                const rand = Math.floor(Math.random() * 90);
+                p.style.top = `${rand}%`;
+                p.style.color = color;
+                container.appendChild(p);
+            });
+
+        </script>
+    </body>
+</html>
